@@ -81,4 +81,18 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+.btn-primary {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
 </style>
