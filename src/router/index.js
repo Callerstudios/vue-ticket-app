@@ -42,7 +42,7 @@ router.beforeEach((to) => {
   const isLoggedIn = localStorage.getItem("ticketapp_session");
 
   if (to.meta.requiresAuth && !isLoggedIn) {
-    return { path: "/auth/login" };
+    return { path: "/login" };
   }
 
   if ((to.name === "login" || to.name === "signup") && isLoggedIn) {
