@@ -6,7 +6,7 @@
           <a href="/">Home</a>
           <a href="/dashboard">Dashboard</a>
           <a href="/tickets">Tickets</a>
-          <a href="/auth/login">Login</a>
+          <a href="/login">Login</a>
         </nav>
         <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
       </div>
