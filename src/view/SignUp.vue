@@ -82,7 +82,7 @@ function handleSubmit() {
         </form>
 
         <p class="auth-switch">
-          Already have an account? <a href="/auth/login">Login</a>
+          Already have an account? <a href="/login">Login</a>
         </p>
       </div>
     </div>
