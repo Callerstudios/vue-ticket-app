@@ -11,8 +11,8 @@
         you’re managing tasks, customers, or project issues.
       </p>
       <div class="cta-buttons">
-        <a href="/auth/login" class="btn primary">Login</a>
-        <a href="/auth/signup" class="btn secondary">Get Started</a>
+        <a href="/login" class="btn primary">Login</a>
+        <a href="/signup" class="btn secondary">Get Started</a>
       </div>
     </div>
 

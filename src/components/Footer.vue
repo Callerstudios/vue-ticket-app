@@ -19,7 +19,7 @@
 .site-footer {
   background: #111827;
   color: #f3f4f6;
-  padding: 2rem 0;
+  padding: 2rem;
   margin-top: 3rem;
 }
 

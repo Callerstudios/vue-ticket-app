@@ -119,4 +119,9 @@ body {
   background: #f2f2f2;
   color: #666;
 }
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+}
 </style>
