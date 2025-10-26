@@ -32,17 +32,20 @@ const router = createRouter({
     meta: { requiresAuth: true },
   }],
 });
-router.beforeEach((to, from, next) => {
-  const session = getSession();
+router.beforeEach((to) => {
+  const isLoggedIn = localStorage.getItem("ticketapp_session");
 
-  if (to.meta.requiresAuth && !session) {
-    next("/login");
-  } else if ((to.name === "login" || to.name === "signup") && session) {
-    next("/dashboard");
-  } else {
-    next();
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    return { path: "/auth/login" };
   }
+
+  if ((to.name === "login" || to.name === "signup") && isLoggedIn) {
+    return { path: "/dashboard" };
+  }
+
+  return true; // continue navigation
 });
+
 
 
 
