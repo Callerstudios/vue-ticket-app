@@ -8,29 +8,35 @@ import { getSession } from "@/utils/helper";
 
 const router = createRouter({
   history: createWebHistory(""),
-  routes: [{
-    path: "/",
-    name: "home",
-    component: () => HomeView,
-  }, {
-    path: "/login",
-    name: "login",
-    component: () => Login,
-  },{
-    path: "/signup",
-    name: "signup",
-    component: () => SignUp,
-  }, {
-    path: "/dashboard",
-    name: "dashboard",
-    component: () => Dashboard,
-    meta: { requiresAuth: true },
-  }, {
-    path: "/tickets",
-    name: "tickets",
-    component: () => Tickets,
-    meta: { requiresAuth: true },
-  }],
+  routes: [
+    {
+      path: "/",
+      name: "home",
+      component: HomeView,
+    },
+    {
+      path: "/login",
+      name: "login",
+      component: Login,
+    },
+    {
+      path: "/signup",
+      name: "signup",
+      component: () => SignUp,
+    },
+    {
+      path: "/dashboard",
+      name: "dashboard",
+      component: Dashboard,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/tickets",
+      name: "tickets",
+      component: Tickets,
+      meta: { requiresAuth: true },
+    },
+  ],
 });
 router.beforeEach((to) => {
   const isLoggedIn = localStorage.getItem("ticketapp_session");
@@ -45,8 +51,5 @@ router.beforeEach((to) => {
 
   return true; // continue navigation
 });
-
-
-
 
 export default router;
