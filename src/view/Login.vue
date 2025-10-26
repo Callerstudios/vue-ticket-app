@@ -18,7 +18,7 @@ function handleSubmit() {
 
   setSession(email.value);
   showToast("Login successful! Redirecting...", "success");
-  setTimeout(() => (window.location.href = "/tickets"), 1200);
+  setTimeout(() => (window.location.href = "/dashboard"), 1200);
 }
 </script>
 

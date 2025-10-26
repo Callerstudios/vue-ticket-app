@@ -1,79 +1,184 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import { showToast } from "@/utils/helper"; // assuming you have this helper
+
+// ===== Reactive State =====
+const tickets = ref([]);
+const newTicket = ref({ title: "", description: "", status: "open" });
+const isEditModalVisible = ref(false);
+const editTicket = ref({ id: null, title: "", description: "", status: "open" });
+
+// ===== Helpers =====
+const getTickets = () => JSON.parse(localStorage.getItem("ticketapp_tickets")) || [];
+const saveTickets = (data) => localStorage.setItem("ticketapp_tickets", JSON.stringify(data));
+
+const renderTickets = () => {
+  tickets.value = getTickets();
+};
+
+// ===== Create Ticket =====
+function addTicket() {
+  if (!newTicket.value.title || !newTicket.value.status) {
+    showToast("Title and status are required.", "error");
+    return;
+  }
+
+  const updated = [
+    ...getTickets(),
+    {
+      id: Date.now(),
+      title: newTicket.value.title.trim(),
+      description: newTicket.value.description.trim(),
+      status: newTicket.value.status,
+    },
+  ];
+
+  saveTickets(updated);
+  renderTickets();
+  showToast("Ticket added successfully!", "success");
+  newTicket.value = { title: "", description: "", status: "open" };
+}
+
+// ===== Edit Ticket =====
+function openEditModal(ticket) {
+  editTicket.value = { ...ticket };
+  isEditModalVisible.value = true;
+}
+
+function saveEdit() {
+  if (!editTicket.value.title || !["open", "in_progress", "closed"].includes(editTicket.value.status)) {
+    showToast("Invalid input or status.", "error");
+    return;
+  }
+
+  const updated = getTickets().map((t) =>
+    t.id === editTicket.value.id ? { ...editTicket.value } : t
+  );
+
+  saveTickets(updated);
+  renderTickets();
+  isEditModalVisible.value = false;
+  showToast("Ticket updated successfully!", "success");
+}
+
+function cancelEdit() {
+  isEditModalVisible.value = false;
+}
+
+// ===== Delete Ticket =====
+function deleteTicket(id) {
+  if (confirm("Are you sure you want to delete this ticket?")) {
+    const updated = getTickets().filter((t) => t.id !== id);
+    saveTickets(updated);
+    renderTickets();
+    showToast("Ticket deleted successfully.", "info");
+  }
+}
+
+// ===== On mount =====
+onMounted(() => {
+  renderTickets();
+});
+</script>
+
+
 <template>
-    <section class="tickets-page container">
-  <h1>Ticket Management</h1>
+  <section class="tickets-page container">
+    <h1>Ticket Management</h1>
 
-  <div class="ticket-form">
-    <h2>Create New Ticket</h2>
-    <form id="ticketForm">
-      <div class="form-group">
-        <label for="title">Title *</label>
-        <input type="text" id="title" name="title" placeholder="Enter ticket title" required />
+    <!-- ===== Create Ticket Form ===== -->
+    <div class="ticket-form">
+      <h2>Create New Ticket</h2>
+      <form @submit.prevent="addTicket">
+        <div class="form-group">
+          <label>Title *</label>
+          <input v-model="newTicket.title" type="text" placeholder="Enter ticket title" required />
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea v-model="newTicket.description" placeholder="Enter description (optional)"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Status *</label>
+          <select v-model="newTicket.status" required>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-primary">Add Ticket</button>
+      </form>
+    </div>
+
+    <hr />
+
+    <!-- ===== Ticket List ===== -->
+    <div class="ticket-list">
+      <h2>Existing Tickets</h2>
+      <div v-if="tickets.length" class="ticket-grid">
+        <div v-for="ticket in tickets" :key="ticket.id" class="ticket-card" :class="ticket.status">
+          <div class="ticket-info">
+            <h3>{{ ticket.title }}</h3>
+            <p>{{ ticket.description || "No description provided." }}</p>
+          </div>
+
+          <div class="ticket-footer">
+            <span class="status" :class="ticket.status">
+              {{ ticket.status.replace("_", " ") }}
+            </span>
+
+            <div class="ticket-actions">
+              <button class="edit-btn" @click="openEditModal(ticket)">Edit</button>
+              <button class="delete-btn" @click="deleteTicket(ticket.id)">Delete</button>
+            </div>
+          </div>
+        </div>
       </div>
+      <p v-else class="no-tickets">No tickets yet.</p>
+    </div>
 
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description" placeholder="Enter description (optional)"></textarea>
-      </div>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+  </section>
 
-      <div class="form-group">
-        <label for="status">Status *</label>
-        <select id="status" name="status" required>
-          <option value="open">Open</option>
-          <option value="in_progress">In Progress</option>
-          <option value="closed">Closed</option>
-        </select>
-      </div>
+  <!-- ===== Edit Ticket Modal ===== -->
+  <div v-if="isEditModalVisible" class="modal-overlay">
+    <div class="modal">
+      <h2>Edit Ticket</h2>
+      <form @submit.prevent="saveEdit">
+        <div class="form-group">
+          <label>Title</label>
+          <input v-model="editTicket.title" required />
+        </div>
 
-      <button type="submit" class="btn-primary">Add Ticket</button>
-    </form>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea v-model="editTicket.description" rows="4" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <select v-model="editTicket.status" required>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" @click="cancelEdit">Cancel</button>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <hr />
-
-  <div class="ticket-list">
-    <h2>Existing Tickets</h2>
-    <div id="ticketContainer" class="ticket-grid"></div>
-  </div>
-
-  <button id="logoutBtn" class="logout-btn">Logout</button>
-</section>
-<!-- ===== Edit Ticket Modal ===== -->
-<div id="editModal" class="modal-overlay hidden">
-  <div class="modal">
-    <h2>Edit Ticket</h2>
-    <form id="editTicketForm">
-      <input type="hidden" id="editTicketId" />
-
-      <div class="form-group">
-        <label for="editTitle">Title</label>
-        <input type="text" id="editTitle" required />
-      </div>
-
-      <div class="form-group">
-        <label for="editDescription">Description</label>
-        <textarea id="editDescription" rows="4" required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="editStatus">Status</label>
-        <select id="editStatus" required>
-          <option value="open">Open</option>
-          <option value="in_progress">In Progress</option>
-          <option value="closed">Closed</option>
-        </select>
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" id="cancelEdit" class="btn-secondary">Cancel</button>
-        <button type="submit" class="btn-primary">Save Changes</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-<div id="toast" class="toast"></div>
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
 </template>
+
 <style scoped>
 .ticket-list {
   background: white;
@@ -192,30 +297,7 @@
   margin-bottom: 1rem;
 }
 
-/* ===== Status Badge ===== */
-.status {
-  display: inline-block;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: capitalize;
-}
 
-.status.open {
-  background: #e6f9ec;
-  color: #0b8a42;
-}
-
-.status.in_progress {
-  background: #fff4e0;
-  color: #c77d00;
-}
-
-.status.closed {
-  background: #f2f2f2;
-  color: #666;
-}
 
 /* ===== Actions ===== */
 .ticket-actions {

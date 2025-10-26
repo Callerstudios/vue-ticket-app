@@ -4,6 +4,7 @@ import Login from "@/view/Login.vue";
 import SignUp from "@/view/SignUp.vue";
 import Dashboard from "@/view/Dashboard.vue";
 import Tickets from "@/view/Tickets.vue";
+import { getSession } from "@/utils/helper";
 
 const router = createRouter({
   history: createWebHistory(""),
@@ -32,16 +33,17 @@ const router = createRouter({
   }],
 });
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = localStorage.getItem("user");
+  const session = getSession();
 
-  if (to.meta.requiresAuth && !isLoggedIn) {
+  if (to.meta.requiresAuth && !session) {
     next("/login");
-  } else if ((to.name === "login" || to.name === "signup") && isLoggedIn) {
-    next("/"); // redirect to home
+  } else if ((to.name === "login" || to.name === "signup") && session) {
+    next("/dashboard");
   } else {
     next();
   }
 });
+
 
 
 export default router;

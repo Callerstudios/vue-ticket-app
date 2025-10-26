@@ -95,4 +95,28 @@ body {
 .btn-primary:hover {
   background: #0056b3;
 }
+/* ===== Status Badge ===== */
+.status {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status.open {
+  background: #e6f9ec;
+  color: #0b8a42;
+}
+
+.status.in_progress {
+  background: #fff4e0;
+  color: #c77d00;
+}
+
+.status.closed {
+  background: #f2f2f2;
+  color: #666;
+}
 </style>

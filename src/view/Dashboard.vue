@@ -1,50 +1,114 @@
+<script setup>
+import { clearSession, showToast } from "@/utils/helper";
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+// reactive refs for counts
+const openCount = ref(0);
+const progressCount = ref(0);
+const closedCount = ref(0);
+const recentTickets = ref([]);
+
+// reusable function to safely load tickets
+const getTickets = () => {
+  try {
+    return JSON.parse(localStorage.getItem("ticketapp_tickets")) || [];
+  } catch (e) {
+    console.error("Error parsing tickets:", e);
+    return [];
+  }
+};
+
+// when component mounts
+onMounted(() => {
+  const tickets = getTickets();
+
+  // Count tickets by status
+  openCount.value = tickets.filter((t) => t.status === "open").length;
+  progressCount.value = tickets.filter(
+    (t) => t.status === "in_progress"
+  ).length;
+  closedCount.value = tickets.filter((t) => t.status === "closed").length;
+
+  // Recent 5 tickets
+  recentTickets.value = tickets.slice(-5).reverse();
+});
+const router = useRouter();
+
+function logout() {
+  clearSession();
+  showToast("You have been logged out.", "info");
+  router.push("/login");
+}
+</script>
+
 <template>
-    <section class="dashboard-section">
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <h2>TicketApp</h2>
-    </div>
-    <nav class="sidebar-nav">
-      <a href="/dashboard" class="active">Dashboard</a>
-      <a href="/tickets">Tickets</a>
-      <a href="#" id="logoutBtn">Logout</a>
-    </nav>
-  </aside>
+  <section class="dashboard-section">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>TicketApp</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/dashboard" class="active">Dashboard</a>
+        <a href="/tickets">Tickets</a>
+        <a href="#" @click.prevent="logout">Logout</a>
 
-  <main class="dashboard-main">
-    <header class="dashboard-header">
-      <h1>Welcome Back 👋</h1>
-      <p>Here’s an overview of your tickets</p>
-    </header>
+      </nav>
+    </aside>
 
-    <div class="stats-grid">
-      <div class="stat-card open">
-        <h3>Open Tickets</h3>
-        <p id="openCount">0</p>
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <h1>Welcome Back 👋</h1>
+        <p>Here’s an overview of your tickets</p>
+      </header>
+
+      <div class="stats-grid">
+        <div class="stat-card open">
+          <h3>Open Tickets</h3>
+          <p>{{ openCount }}</p>
+        </div>
+
+        <div class="stat-card progress">
+          <h3>In Progress</h3>
+          <p>{{ progressCount }}</p>
+        </div>
+
+        <div class="stat-card closed">
+          <h3>Closed Tickets</h3>
+          <p>{{ closedCount }}</p>
+        </div>
       </div>
 
-      <div class="stat-card progress">
-        <h3>In Progress</h3>
-        <p id="progressCount">0</p>
-      </div>
+      <div class="recent-tickets">
+        <h2>Recent Tickets</h2>
 
-      <div class="stat-card closed">
-        <h3>Closed Tickets</h3>
-        <p id="closedCount">0</p>
-      </div>
-    </div>
+        <div v-if="recentTickets.length === 0" class="ticket-list">
+          <p class="placeholder">
+            No tickets found. Create one to get started!
+          </p>
+        </div>
 
-    <div class="recent-tickets">
-      <h2>Recent Tickets</h2>
-      <div id="recentTicketsContainer" class="ticket-list">
-        <p class="placeholder">No tickets found. Create one to get started!</p>
+        <div v-else class="ticket-list">
+          <div
+            v-for="ticket in recentTickets"
+            :key="ticket.id"
+            class="ticket-item"
+            :class="ticket.status"
+          >
+            <h4>{{ ticket.title }}</h4>
+            <p>{{ ticket.description || "No description provided." }}</p>
+            <span class="status" :class="ticket.status">
+              {{ ticket.status.replace("_", " ") }}
+            </span>
+          </div>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <div id="toast" class="toast"></div>
-</section>
+    <div id="toast" class="toast"></div>
+  </section>
 </template>
+
 <style scoped>
 /* ===== DASHBOARD ===== */
 .dashboard-section {
