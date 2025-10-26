@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { showToast } from "@/utils/helper"; // assuming you have this helper
+import { clearSession, showToast } from "@/utils/helper"; // assuming you have this helper
+import { useRouter } from "vue-router";
 
 // ===== Reactive State =====
 const tickets = ref([]);
@@ -74,7 +75,13 @@ function deleteTicket(id) {
     showToast("Ticket deleted successfully.", "info");
   }
 }
+const router = useRouter();
 
+function logout() {
+  clearSession();
+  showToast("You have been logged out.", "info");
+  router.push("/login");
+}
 // ===== On mount =====
 onMounted(() => {
   renderTickets();
@@ -140,7 +147,7 @@ onMounted(() => {
       <p v-else class="no-tickets">No tickets yet.</p>
     </div>
 
-    <button id="logoutBtn" class="logout-btn">Logout</button>
+    <button id="logoutBtn" class="logout-btn" @click.prevent="logout">Logout</button>
   </section>
 
   <!-- ===== Edit Ticket Modal ===== -->
