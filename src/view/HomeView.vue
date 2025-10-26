@@ -42,6 +42,11 @@
 </template>
 <style scoped>
 /* ===== HERO SECTION ===== */
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+}
 .hero {
   position: relative;
   overflow: hidden;

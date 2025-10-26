@@ -10,7 +10,7 @@ const router = createRouter({
   routes: [{
     path: "/",
     name: "home",
-    component: () => HomeView,  
+    component: () => HomeView,
   }, {
     path: "/login",
     name: "login",
@@ -23,11 +23,25 @@ const router = createRouter({
     path: "/dashboard",
     name: "dashboard",
     component: () => Dashboard,
+    meta: { requiresAuth: true },
   }, {
     path: "/tickets",
     name: "tickets",
     component: () => Tickets,
+    meta: { requiresAuth: true },
   }],
 });
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = localStorage.getItem("user");
+
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    next("/login");
+  } else if ((to.name === "login" || to.name === "signup") && isLoggedIn) {
+    next("/"); // redirect to home
+  } else {
+    next();
+  }
+});
+
 
 export default router;

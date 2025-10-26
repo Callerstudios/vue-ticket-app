@@ -1,3 +1,27 @@
+<script setup>
+import { getUsers, getSession, setSession, showToast } from "@/utils/helper";
+import { ref } from "vue";
+const email = ref("");
+const password = ref("");
+function handleSubmit() {
+  if (!email.value || !password.value) {
+    showToast("Both email and password are required.", "error");
+    return;
+  }
+
+  const users = getUsers();
+  const user = users.find((u) => u.email === email.value && u.password === password.value);
+  if (!user) {
+    showToast("Invalid email or password. Please try again.", "error");
+    return;
+  }
+
+  setSession(email.value);
+  showToast("Login successful! Redirecting...", "success");
+  setTimeout(() => (window.location.href = "/tickets"), 1200);
+}
+</script>
+
 <template>
     <section class="auth-section">
   <div class="container auth-container">
@@ -5,10 +29,11 @@
       <h2>Welcome Back</h2>
       <p class="subtitle">Login to access your dashboard</p>
 
-      <form id="loginForm" class="auth-form">
+      <form id="loginForm" class="auth-form" @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="email">Email</label>
           <input
+            v-model="email"
             type="email"
             id="email"
             name="email"
@@ -21,6 +46,7 @@
         <div class="form-group">
           <label for="password">Password</label>
           <input
+            v-model="password"
             type="password"
             id="password"
             name="password"

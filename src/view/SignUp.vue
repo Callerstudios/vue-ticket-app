@@ -1,59 +1,95 @@
+<script setup>
+import { getUsers, saveUsers, showToast } from "@/utils/helper";
+import { ref } from "vue";
+
+const name = ref("");
+const email = ref("");
+const password = ref("");
+
+function handleSubmit() {
+  if (!email.value || !password.value || !name.value) {
+    showToast("All fields are required.", "error");
+    return;
+  }
+
+  const users = getUsers();
+  if (users.find((u) => u.email === email)) {
+    showToast("Email already exists. Please log in.", "error");
+    return;
+  }
+
+  users.push(
+    users.push({
+      name: name.value,
+      email: email.value,
+      password: password.value,
+    })
+  );
+  saveUsers(users);
+  showToast("Signup successful! Please log in.", "success");
+  setTimeout(() => (window.location.href = "/login"), 1200);
+}
+</script>
+
 <template>
-    <section class="auth-section">
-  <div class="container auth-container">
-    <div class="auth-box">
-      <h2>Create an Account</h2>
-      <p class="subtitle">Join TicketApp to manage tickets easily</p>
+  <section class="auth-section">
+    <div class="container auth-container">
+      <div class="auth-box">
+        <h2>Create an Account</h2>
+        <p class="subtitle">Join TicketApp to manage tickets easily</p>
 
-      <form id="signupForm" class="auth-form">
-        <div class="form-group">
-          <label for="name">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            placeholder="John Doe"
-            required
-          />
-          <small class="error-message" id="nameError"></small>
-        </div>
+        <form id="signupForm" class="auth-form" @submit.prevent="handleSubmit">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input
+              v-model="name"
+              type="text"
+              id="name"
+              name="name"
+              placeholder="John Doe"
+              required
+            />
+            <small class="error-message" id="nameError"></small>
+          </div>
 
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="you@example.com"
-            required
-          />
-          <small class="error-message" id="emailError"></small>
-        </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              v-model="email"
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+            />
+            <small class="error-message" id="emailError"></small>
+          </div>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Enter a strong password"
-            required
-          />
-          <small class="error-message" id="passwordError"></small>
-        </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              v-model="password"
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter a strong password"
+              required
+            />
+            <small class="error-message" id="passwordError"></small>
+          </div>
 
-        <button type="submit" class="btn primary full">Sign Up</button>
-      </form>
+          <button type="submit" class="btn primary full">Sign Up</button>
+        </form>
 
-      <p class="auth-switch">
-        Already have an account? <a href="/auth/login">Login</a>
-      </p>
+        <p class="auth-switch">
+          Already have an account? <a href="/auth/login">Login</a>
+        </p>
+      </div>
     </div>
-  </div>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="toast"></div>
-</section>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+  </section>
 </template>
 <style scoped>
 .auth-section {
